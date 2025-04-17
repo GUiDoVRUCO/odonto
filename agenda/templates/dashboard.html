@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Reset e configurações gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Tema Light (padrão) */
+            --bg-body: #f5f5f7;
+            --bg-container: rgba(255, 255, 255, 0.9);
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --border-color: #e5e5e5;
+            --link-color: #007aff;
+            --hover-link: #0051c3;
+            --stat-bg: #ffffff;
+            --shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Tema Dark */
+        [data-theme="dark"] {
+            --bg-body: #000000;
+            --bg-container: rgba(28, 28, 30, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #a6a6a6;
+            --border-color: #2c2c2e;
+            --link-color: #0a84ff;
+            --hover-link: #2997ff;
+            --stat-bg: #1c1c1e;
+            --shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            --hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: var(--bg-body);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-primary);
+            transition: background 0.3s ease;
+        }
+
+        .dashboard-container {
+            background: var(--bg-container);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 32px;
+            width: 100%;
+            max-width: 680px;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-box {
+            background: var(--stat-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .stat-box p {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .stat-box span {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: block;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--stat-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-container);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--hover-link);
+        }
+
+        /* Animação de carregamento */
+        .dashboard-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 24px;
+                max-width: 100%;
+                margin: 0 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-box {
+                padding: 12px;
+            }
+
+            .stat-box p {
+                font-size: 12px;
+            }
+
+            .stat-box span {
+                font-size: 20px;
+            }
+
+            .theme-toggle {
+                top: 16px;
+                right: 16px;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .back-link {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .dashboard-container {
+                padding: 16px;
+                margin: 0 8px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 20px;
+                margin-bottom: 16px;
+            }
+
+            .stat-box {
+                padding: 10px;
+            }
+
+            .stat-box p {
+                font-size: 11px;
+            }
+
+            .stat-box span {
+                font-size: 18px;
+            }
+
+            .theme-toggle {
+                top: 12px;
+                right: 12px;
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+    <script>
+        // Carregar tema salvo ou padrão
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-toggle').textContent = 'Light Mode';
+            }
+        });
+
+        // Alternar tema
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            if (currentTheme === 'dark' || !currentTheme) {
+                body.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('theme-toggle').textContent = 'Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('theme-toggle').textContent = 'Light Mode';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Relatório do Dentista</h1>
+        <div class="stats">
+            <div class="stat-box">
+                <p>Total de pacientes</p>
+                <span>{{ total_pacientes }}</span>
+            </div>
+            <div class="stat-box">
+                <p>Consultas nos últimos 30 dias</p>
+                <span>{{ consultas_recentes }}</span>
+            </div>
+        </div>
+        <a href="/admin/" class="back-link">Voltar ao Admin</a>
+        <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+    </div>
+</body>
+</html>

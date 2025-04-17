@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Área do Paciente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <style>
+        /* Reset e Configurações Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            overflow-y: auto;
+            overscroll-behavior: none;
+            transition: background 0.3s ease;
+        }
+
+        body.light {
+            background: linear-gradient(135deg, #f2f2f7 0%, #e5e5ea 100%);
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+        }
+
+        /* Container Principal */
+        .area-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            animation: fadeIn 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body.dark .area-container {
+            background: rgba(28, 28, 30, 0.95);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Cabeçalho */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1d1d1f;
+            letter-spacing: -0.02em;
+        }
+
+        body.dark .header h1 {
+            color: #fff;
+        }
+
+        /* Ícone de Usuário */
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .user-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #007aff;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            width: 200px;
+            z-index: 1000;
+            animation: slideIn 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+
+        body.dark .modal {
+            background: rgba(28, 28, 30, 0.95);
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-option {
+            display: block;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #ff453a;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            text-align: center;
+        }
+
+        .modal-option:hover {
+            background: #f2f2f7;
+        }
+
+        body.dark .modal-option:hover {
+            background: #2c2c2e;
+        }
+
+        /* Toggle de Tema */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 100px;
+            width: 48px;
+            height: 48px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle svg {
+            width: 28px;
+            height: 28px;
+            fill: #000;
+        }
+
+        body.dark .theme-toggle svg {
+            fill: #fff;
+        }
+
+        .theme-toggle .sun-icon {
+            display: block;
+        }
+
+        .theme-toggle .moon-icon {
+            display: none;
+        }
+
+        body.dark .theme-toggle .sun-icon {
+            display: none;
+        }
+
+        body.dark .theme-toggle .moon-icon {
+            display: block;
+        }
+
+        /* Seções */
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 16px;
+        }
+
+        body.dark .section-title {
+            color: #fff;
+        }
+
+        /* Cards de Informação */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .info-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body.dark .info-card {
+            background: #2c2c2e;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6e6e73;
+            margin-bottom: 8px;
+        }
+
+        body.dark .info-card p {
+            color: #a1a1a6;
+        }
+
+        .info-card span {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        body.dark .info-card span {
+            color: #fff;
+        }
+
+        /* Formulários Disponíveis */
+        .formulario-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .formulario-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body.dark .formulario-card {
+            background: #2c2c2e;
+        }
+
+        .formulario-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .formulario-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #007aff 0%, #0051c3 100%);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .formulario-button:hover {
+            background: linear-gradient(135deg, #0051c3 0%, #003e9b 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+        }
+
+        .formulario-button:active {
+            transform: scale(0.98);
+        }
+
+        .formulario-button svg {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
+        }
+
+        /* Respostas */
+        .resposta-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .resposta-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body.dark .resposta-card {
+            background: #2c2c2e;
+        }
+
+        .resposta-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .resposta-card p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6e6e73;
+            margin-bottom: 8px;
+        }
+
+        body.dark .resposta-card p {
+            color: #a1a1a6;
+        }
+
+        .resposta-card span {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        body.dark .resposta-card span {
+            color: #fff;
+        }
+
+        .resposta-hidden {
+            display: none;
+        }
+
+        .resposta-list.expanded .resposta-hidden {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Botão Ver Mais */
+        .toggle-respostas {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #007aff;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-respostas:hover {
+            color: #0051c3;
+        }
+
+        .toggle-respostas svg {
+            width: 16px;
+            height: 16px;
+            fill: #007aff;
+            transition: transform 0.3s ease, fill 0.2s ease;
+        }
+
+        .toggle-respostas:hover svg {
+            fill: #0051c3;
+        }
+
+        .toggle-respostas.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        /* Mensagens de Erro */
+        .empty-message {
+            font-size: 16px;
+            font-weight: 500;
+            color: #6e6e73;
+            text-align: center;
+            padding: 16px;
+        }
+
+        body.dark .empty-message {
+            color: #a1a1a6;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .area-container {
+                padding: 32px;
+                border-radius: 20px;
+                max-width: 400px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card, .formulario-card, .resposta-card {
+                padding: 16px;
+            }
+
+            .info-card p, .resposta-card p {
+                font-size: 12px;
+            }
+
+            .info-card span, .resposta-card span {
+                font-size: 14px;
+            }
+
+            .formulario-button {
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+
+            .formulario-button svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .toggle-respostas {
+                font-size: 14px;
+            }
+
+            .toggle-respostas svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .user-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .theme-toggle {
+                right: 80px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .theme-toggle svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .modal {
+                width: 180px;
+                top: 50px;
+                right: 16px;
+            }
+
+            .modal-option {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .area-container {
+                padding: 24px;
+                border-radius: 16px;
+                max-width: 100%;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .info-card, .formulario-card, .resposta-card {
+                padding: 12px;
+            }
+
+            .user-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .theme-toggle {
+                right: 60px;
+                width: 36px;
+                height: 36px;
+            }
+
+            .theme-toggle svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .modal {
+                width: 160px;
+                top: 46px;
+                right: 12px;
+            }
+        }
+
+        /* Acessibilidade */
+        .user-icon:focus, .modal-option:focus, .formulario-button:focus, .toggle-respostas:focus {
+            outline: 2px solid #007aff;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="area-container">
+        <div class="header">
+            <h1>Bem-vindo, {{ user.username }}!</h1>
+            <div class="user-icon" tabindex="0" aria-label="Opções de usuário">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+            </div>
+            <div class="modal" id="user-modal">
+                <a href="{% url 'logout_paciente' %}" class="modal-option">Sair</a>
+            </div>
+        </div>
+
+        <button class="theme-toggle" aria-label="Alternar entre tema claro e escuro" aria-checked="false">
+            <svg class="sun-icon" viewBox="0 0 24 24">
+                <path d="M12 2a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-2.5A.75.75 0 0 1 12 2zm0 16a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-2.5A.75.75 0 0 1 12 18zm-9.75-6a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75zm16.5 0a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75zm-1.768-5.482a.75.75 0 0 1 1.06-1.06l1.767 1.767a.75.75 0 0 1-1.06 1.06l-1.767-1.767zm-10.606 10.606a.75.75 0 0 1 1.06-1.06l1.767 1.767a.75.75 0 0 1-1.06 1.06l-1.767-1.767zm-1.06-12.666a.75.75 0 0 1 1.06 1.06L5.482 6.268a.75.75 0 0 1-1.06-1.06l1.767-1.767zm12.666 10.606a.75.75 0 0 1 1.06 1.06l-1.767 1.767a.75.75 0 0 1-1.06-1.06l1.767-1.767zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/>
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24">
+                <path d="M12.058 2.04a.75.75 0 0 1 .653.932 8.25 8.25 0 0 0 9.317 9.317.75.75 0 0 1 1.585.653 10.25 10.25 0 1 1-11.505-11.505.75.75 0 0 1 .95.603z"/>
+            </svg>
+        </button>
+
+        <div class="section">
+            <h2 class="section-title">Seu Histórico</h2>
+            {% if historico %}
+                <div class="info-grid">
+                    <div class="info-card">
+                        <p>Nome</p>
+                        <span>{{ historico.nome }}</span>
+                    </div>
+                    <div class="info-card">
+                        <p>E-mail</p>
+                        <span>{{ historico.email }}</span>
+                    </div>
+                    <div class="info-card">
+                        <p>Última Consulta</p>
+                        <span>{{ historico.ultima_consulta|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="info-card">
+                        <p>Histórico Médico</p>
+                        <span>{{ historico.historico_medico }}</span>
+                    </div>
+                </div>
+            {% else %}
+                <p class="empty-message">Nenhum histórico encontrado. Preencha o formulário primeiro.</p>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Formulários Personalizados Disponíveis</h2>
+            {% if formularios %}
+                <div class="formulario-list">
+                    {% for formulario in formularios %}
+                        <div class="formulario-card">
+                            <a href="{% url 'formulario_personalizado' formulario.id %}" class="formulario-button">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                                </svg>
+                                {{ formulario.nome }}
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-message">Nenhum formulário personalizado disponível.</p>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Minhas Respostas</h2>
+            {% if respostas %}
+                <div class="resposta-list" id="resposta-list">
+                    <div class="resposta-card">
+                        <p>Formulário: {{ respostas.0.formulario.nome }}</p>
+                        <p>Campo: {{ respostas.0.campo.nome }}</p>
+                        <span>{{ respostas.0.valor }}</span>
+                        <p>Respondido em: {{ respostas.0.respondido_em|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    {% for resposta in respostas|slice:"1:" %}
+                        <div class="resposta-card resposta-hidden">
+                            <p>Formulário: {{ resposta.formulario.nome }}</p>
+                            <p>Campo: {{ resposta.campo.nome }}</p>
+                            <span>{{ resposta.valor }}</span>
+                            <p>Respondido em: {{ resposta.respondido_em|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if respostas|length > 1 %}
+                    <button class="toggle-respostas" id="toggle-respostas">
+                        Ver mais
+                        <svg class="arrow-icon" viewBox="0 0 24 24">
+                            <path d="M12 15.5a1 1 0 0 1-.71-.29l-4-4a1 1 0 1 1 1.42-1.42L12 13.1l3.29-3.3a1 1 0 1 1 1.42 1.42l-4 4a1 1 0 0 1-.71.29z"/>
+                        </svg>
+                    </button>
+                {% endif %}
+            {% else %}
+                <p class="empty-message">Nenhuma resposta enviada ainda.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Modal de usuário
+            const userIcon = document.querySelector('.user-icon');
+            const modal = document.querySelector('#user-modal');
+            const body = document.body;
+            const toggle = document.querySelector('.theme-toggle');
+
+            // Carregar tema salvo
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            body.className = savedTheme;
+            toggle.setAttribute('aria-checked', savedTheme === 'dark');
+
+            // Alternar tema
+            toggle.addEventListener('click', () => {
+                const newTheme = body.className === 'light' ? 'dark' : 'light';
+                body.className = newTheme;
+                localStorage.setItem('theme', newTheme);
+                toggle.setAttribute('aria-checked', newTheme === 'dark');
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(30);
+                }
+            });
+
+            userIcon.addEventListener('click', () => {
+                modal.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userIcon.contains(e.target) && !modal.contains(e.target)) {
+                    modal.classList.remove('active');
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    modal.classList.remove('active');
+                }
+            });
+
+            userIcon.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    modal.classList.toggle('active');
+                }
+            });
+
+            // Toggle de respostas
+            const toggleButton = document.querySelector('#toggle-respostas');
+            const respostaList = document.querySelector('#resposta-list');
+
+            if (toggleButton) {
+                toggleButton.addEventListener('click', () => {
+                    const isExpanded = respostaList.classList.contains('expanded');
+                    respostaList.classList.toggle('expanded');
+                    toggleButton.classList.toggle('expanded');
+                    toggleButton.innerHTML = isExpanded
+                        ? 'Ver mais <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M12 15.5a1 1 0 0 1-.71-.29l-4-4a1 1 0 1 1 1.42-1.42L12 13.1l3.29-3.3a1 1 0 1 1 1.42 1.42l-4 4a1 1 0 0 1-.71.29z"/></svg>'
+                        : 'Ver menos <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M12 15.5a1 1 0 0 1-.71-.29l-4-4a1 1 0 1 1 1.42-1.42L12 13.1l3.29-3.3a1 1 0 1 1 1.42 1.42l-4 4a1 1 0 0 1-.71.29z"/></svg>';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
